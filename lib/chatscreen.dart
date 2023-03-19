@@ -9,27 +9,52 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   @override
-
-  Widget _buildTextComposer()
+  Widget _buildTextComposer() {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+      ),
+      child: Row(
+        children: [
+          const Expanded(
+            child: TextField(
+              decoration: InputDecoration.collapsed(hintText: "Type here..."),
+            ),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.send),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: const <Widget>[
-            Icon(Icons.assistant),
-            Text("FBOT"),
-          ],
+        title: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: const <Widget>[
+              Icon(Icons.assistant),
+              SizedBox(
+                width: 20,
+              ),
+              Text("FBOT"),
+            ],
+          ),
         ),
         titleTextStyle: const TextStyle(
           color: Colors.green,
-          fontSize: 20,
+          fontSize: 30,
         ),
       ),
       body: Column(
-        children: const [
+        children: [
           Container(
-            decoration: BoxDecoration(color: Colors.blue),
             child: _buildTextComposer(),
           ),
         ],
