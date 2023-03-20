@@ -9,14 +9,13 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  @override
   final TextEditingController _controller = TextEditingController();
   final List<ChatMessage> _messages = [];
 
   void _sendMessage() {
-    ChatMessage _message = ChatMessage(text: _controller.text, sender: "User");
+    ChatMessage message = ChatMessage(text: _controller.text, sender: "User");
     setState(() {
-      _messages.insert(0, _message);
+      _messages.insert(0, message);
     });
     _controller.clear();
   }
@@ -29,12 +28,12 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       child: Container(
         height: 100,
-        padding: EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.only(bottom: 20),
         child: Row(
           children: [
             Expanded(
               child: TextField(
-                style: TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20),
                 controller: _controller,
                 onSubmitted: (value) => _sendMessage(),
                 decoration:
