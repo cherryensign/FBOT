@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'chatmessage.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -9,24 +10,43 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   @override
+  final TextEditingController _controller = TextEditingController();
+  final List<ChatMessage> _messages = [];
+
+  void _sendMessage() {
+    ChatMessage _message = ChatMessage(text: _controller.text, sender: "User");
+    setState(() {
+      _messages.insert(0, _message);
+    });
+    _controller.clear();
+  }
+
   Widget _buildTextComposer() {
     return Padding(
       padding: const EdgeInsets.only(
         left: 16,
         right: 16,
       ),
-      child: Row(
-        children: [
-          const Expanded(
-            child: TextField(
-              decoration: InputDecoration.collapsed(hintText: "Type here..."),
+      child: Container(
+        height: 100,
+        padding: EdgeInsets.only(bottom: 20),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                style: TextStyle(fontSize: 20),
+                controller: _controller,
+                onSubmitted: (value) => _sendMessage(),
+                decoration:
+                    const InputDecoration.collapsed(hintText: "Type here..."),
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.send),
-          ),
-        ],
+            IconButton(
+              onPressed: _sendMessage,
+              icon: const Icon(Icons.send),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -48,12 +68,27 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
         titleTextStyle: const TextStyle(
-          color: Colors.green,
+          color: Colors.blue,
           fontSize: 30,
         ),
       ),
       body: Column(
         children: [
+          Flexible(
+            child: ListView.builder(
+              reverse: true,
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 10,
+                bottom: 10,
+              ),
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                return _messages[index];
+              },
+            ),
+          ),
           Container(
             child: _buildTextComposer(),
           ),
