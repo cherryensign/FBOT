@@ -15,9 +15,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
-  final List<ChatMessage> _messages = [
-    const ChatMessage(text: "Hello!!!", sender: "Bot")
-  ];
+  List<ChatMessage> _messages = [ChatMessage(text: "Hello!!!", sender: "Bot")];
 
   final chatGPT = OpenAI.instance;
   StreamSubscription? _subscription;
@@ -39,7 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
     Vx.log(message.text);
     _subscription = chatGPT
         .build(
-          token: "",
+          token: "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",
         )
         .onCompleteStream(request: request)
         .listen((response) {
@@ -53,6 +51,12 @@ class _ChatScreenState extends State<ChatScreen> {
         _isTyping = false;
         _messages.insert(0, botMessage);
       });
+    });
+  }
+
+  void _clearMessages() {
+    setState(() {
+      _messages = [];
     });
   }
 
@@ -78,8 +82,17 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             IconButton(
               onPressed: _sendMessage,
-              icon: const Icon(Icons.send),
+              icon: const Icon(
+                Icons.send,
+                color: Colors.blue,
+              ),
             ),
+            IconButton(
+                onPressed: _clearMessages,
+                icon: const Icon(
+                  Icons.clear,
+                  color: Colors.blue,
+                )),
           ],
         ),
       ),
