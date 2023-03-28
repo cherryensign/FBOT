@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:igai/chatscreen.dart';
+import 'package:FBOT/chatscreen.dart';
 
 void main() {
   runApp(const MyApp());
