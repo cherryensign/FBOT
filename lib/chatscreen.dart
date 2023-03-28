@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
+import 'package:fbot/threedots.dart';
 import 'package:flutter/material.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'chatmessage.dart';
@@ -14,27 +15,19 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
-  final List<ChatMessage> _messages = [];
+  final List<ChatMessage> _messages = [
+    const ChatMessage(text: "Hello!!!", sender: "Bot")
+  ];
 
-  OpenAI? chatGPT;
+  final chatGPT = OpenAI.instance;
   StreamSubscription? _subscription;
-
-  @override
-  void initstate() {
-    super.initState();
-    chatGPT = OpenAI.instance;
-  }
-
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    super.dispose();
-  }
+  bool _isTyping = false;
 
   void _sendMessage() {
     ChatMessage message = ChatMessage(text: _controller.text, sender: "User");
     setState(() {
       _messages.insert(0, message);
+      _isTyping = true;
     });
     _controller.clear();
 
@@ -43,17 +36,21 @@ class _ChatScreenState extends State<ChatScreen> {
       model: kTranslateModelV3,
       maxTokens: 200,
     );
+    Vx.log(message.text);
     _subscription = chatGPT
-        ?.build(token: "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")
+        .build(
+          token: "",
+        )
         .onCompleteStream(request: request)
         .listen((response) {
       Vx.log(response!.choices[0].text);
       ChatMessage botMessage = ChatMessage(
-        text: response!.choices[0].text,
+        text: response.choices[0].text,
         sender: "Bot",
       );
 
       setState(() {
+        _isTyping = false;
         _messages.insert(0, botMessage);
       });
     });
@@ -89,6 +86,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -126,6 +124,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 return _messages[index];
               },
             ),
+          ),
+          if (_isTyping) const ThreeDots(),
+          const Divider(
+            height: 1,
           ),
           Container(
             child: _buildTextComposer(),

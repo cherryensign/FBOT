@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:FBOT/chatscreen.dart';
+import 'package:fbot/chatscreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark(
         useMaterial3: true,
       ),
-      home: ChatScreen(),
+      home: const ChatScreen(),
     );
   }
 }
