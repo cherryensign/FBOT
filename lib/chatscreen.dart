@@ -37,7 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
     Vx.log(message.text);
     _subscription = chatGPT
         .build(
-          token: "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",
+          token: "",
         )
         .onCompleteStream(request: request)
         .listen((response) {
