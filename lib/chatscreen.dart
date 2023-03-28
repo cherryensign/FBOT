@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:velocity_x/velocity_x.dart';
 import 'chatmessage.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -12,12 +16,47 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<ChatMessage> _messages = [];
 
+  OpenAI? chatGPT;
+  StreamSubscription? _subscription;
+
+  @override
+  void initstate() {
+    super.initState();
+    chatGPT = OpenAI.instance;
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
   void _sendMessage() {
     ChatMessage message = ChatMessage(text: _controller.text, sender: "User");
     setState(() {
       _messages.insert(0, message);
     });
     _controller.clear();
+
+    final request = CompleteText(
+      prompt: message.text,
+      model: kTranslateModelV3,
+      maxTokens: 200,
+    );
+    _subscription = chatGPT
+        ?.build(token: "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")
+        .onCompleteStream(request: request)
+        .listen((response) {
+      Vx.log(response!.choices[0].text);
+      ChatMessage botMessage = ChatMessage(
+        text: response!.choices[0].text,
+        sender: "Bot",
+      );
+
+      setState(() {
+        _messages.insert(0, botMessage);
+      });
+    });
   }
 
   Widget _buildTextComposer() {
