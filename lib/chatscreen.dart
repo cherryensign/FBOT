@@ -17,41 +17,81 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   List<ChatMessage> _messages = [ChatMessage(text: "Hello!!!", sender: "Bot")];
 
-  final chatGPT = OpenAI.instance;
-  StreamSubscription? _subscription;
+  late OpenAI? chatGPT;
   bool _isTyping = false;
+  bool _isImageSearched = false;
+
+  @override
+  void initState() {
+    chatGPT = OpenAI.instance.build(
+      token: "",
+      baseOption: HttpSetup(receiveTimeout: 60000),
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    chatGPT?.close();
+    chatGPT?.genImgClose();
+    super.dispose();
+  }
 
   void _sendMessage() {
-    ChatMessage message = ChatMessage(text: _controller.text, sender: "User");
+    if (_controller.text.isEmpty) return;
+    ChatMessage message = ChatMessage(
+      text: _controller.text,
+      sender: "User",
+      isImage: false,
+    );
     setState(() {
       _messages.insert(0, message);
       _isTyping = true;
     });
     _controller.clear();
 
-    final request = CompleteText(
-      prompt: message.text,
-      model: kTranslateModelV3,
-      maxTokens: 200,
-    );
-    Vx.log(message.text);
-    _subscription = chatGPT
-        .build(
-          token: "",
-        )
-        .onCompleteStream(request: request)
-        .listen((response) {
-      Vx.log(response!.choices[0].text);
-      ChatMessage botMessage = ChatMessage(
-        text: response.choices[0].text,
-        sender: "Bot",
-      );
+    if (_isImageSearched) {
+      final request = GenerateImage(message.text, 1, size: "256x256");
+      final response = chatGPT!
+          .generateImageStream(request)
+          .asBroadcastStream()
+          .listen((response) {
+        Vx.log(response.data!.last!.url!);
+        ChatMessage botMessage = ChatMessage(
+          text: response.data!.last!.url!,
+          sender: "Bot",
+          isImage: true,
+        );
 
-      setState(() {
-        _isTyping = false;
-        _messages.insert(0, botMessage);
+        setState(() {
+          _isTyping = false;
+          _messages.insert(0, botMessage);
+        });
       });
-    });
+    } else {
+      final request = CompleteText(
+        prompt: message.text,
+        model: kTranslateModelV3,
+        maxTokens: 200,
+      );
+      Vx.log(message.text);
+      final response = chatGPT!
+          .onCompleteStream(request: request)
+          .asBroadcastStream()
+          .listen((response) {
+        Vx.log(response!.choices[0].text);
+        ChatMessage botMessage = ChatMessage(
+          text: response.choices[0].text,
+          sender: "Bot",
+          isImage: false,
+        );
+
+        setState(() {
+          _isTyping = false;
+          _messages.insert(0, botMessage);
+        });
+      });
+    }
   }
 
   void _clearMessages() {
@@ -81,16 +121,29 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             IconButton(
-              onPressed: _sendMessage,
+              onPressed: () {
+                _isImageSearched = false;
+                _sendMessage();
+              },
               icon: const Icon(
                 Icons.send,
                 color: Colors.blue,
               ),
             ),
             IconButton(
+              onPressed: () {
+                _isImageSearched = true;
+                _sendMessage();
+              },
+              icon: const Icon(
+                Icons.image_search,
+                color: Colors.blue,
+              ),
+            ),
+            IconButton(
                 onPressed: _clearMessages,
                 icon: const Icon(
-                  Icons.clear,
+                  Icons.clear_all,
                   color: Colors.blue,
                 )),
           ],
