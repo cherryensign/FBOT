@@ -24,7 +24,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     chatGPT = OpenAI.instance.build(
-      token: "",
+      token: "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",
       baseOption: HttpSetup(receiveTimeout: 60000),
     );
     super.initState();
@@ -158,7 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: Container(
           alignment: Alignment.center,
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(5),
           child: Row(
             children: const <Widget>[
               Icon(Icons.assistant),
@@ -180,8 +180,8 @@ class _ChatScreenState extends State<ChatScreen> {
             child: ListView.builder(
               reverse: true,
               padding: const EdgeInsets.only(
-                left: 20,
-                right: 20,
+                left: 10,
+                right: 10,
                 top: 10,
                 bottom: 10,
               ),

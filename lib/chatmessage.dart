@@ -27,11 +27,11 @@ class ChatMessage extends StatelessWidget {
       children: [
         Text(sender)
             .text
-            .subtitle1(context)
+            .subtitle2(context)
             .make()
             .box
             .color(sender == "Bot" ? Colors.blue : Colors.green)
-            .p16
+            .p12
             .rounded
             .alignCenter
             .makeCentered(),
@@ -44,7 +44,7 @@ class ChatMessage extends StatelessWidget {
                       loadingBuilder: (context, child, loadingProgress) =>
                           loadingProgress == null
                               ? child
-                              : const CircularProgressIndicator.adaptive(),
+                              : const LinearProgressIndicator(),
                     ),
                   )
                 : text.trim().text.bodyText1(context).make().px8()),
