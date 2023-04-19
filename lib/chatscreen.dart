@@ -1,9 +1,8 @@
-import 'dart:async';
-
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:fbot/threedots.dart';
 import 'package:flutter/material.dart';
 import 'package:velocity_x/velocity_x.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'chatmessage.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -24,17 +23,32 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     chatGPT = OpenAI.instance.build(
-      token: "",
-      baseOption: HttpSetup(receiveTimeout: 60000),
-    );
+        token: "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",
+        baseOption: HttpSetup(
+            receiveTimeout: const Duration(seconds: 20),
+            connectTimeout: const Duration(seconds: 20)),
+        isLog: true);
     super.initState();
   }
 
   @override
-  void dispose() {
-    chatGPT?.close();
-    chatGPT?.genImgClose();
-    super.dispose();
+  //void dispose() {
+  //  chatGPT?.close();
+  //  chatGPT?.genImgClose();
+  //  super.dispose();
+  //}
+
+  void insertNewData(String response, {bool isImage = false}) {
+    ChatMessage botMessage = ChatMessage(
+      text: response,
+      sender: "Bot",
+      isImage: isImage,
+    );
+
+    setState(() {
+      _isTyping = false;
+      _messages.insert(0, botMessage);
+    });
   }
 
   void _sendMessage() {
@@ -51,45 +65,23 @@ class _ChatScreenState extends State<ChatScreen> {
     _controller.clear();
 
     if (_isImageSearched) {
-      final request = GenerateImage(message.text, 1, size: "256x256");
-      final response = chatGPT!
-          .generateImageStream(request)
-          .asBroadcastStream()
-          .listen((response) {
-        Vx.log(response.data!.last!.url!);
-        ChatMessage botMessage = ChatMessage(
-          text: response.data!.last!.url!,
-          sender: "Bot",
-          isImage: true,
-        );
+      final request = GenerateImage(message.text, 1,
+          size: ImageSize.size256, responseFormat: Format.url);
 
-        setState(() {
-          _isTyping = false;
-          _messages.insert(0, botMessage);
-        });
+      final response =
+          chatGPT!.generateImage(request).asStream().listen((event) {
+        Vx.log(event?.data!.last!.url!);
+        insertNewData(event!.data!.last!.url!, isImage: true);
       });
     } else {
       final request = CompleteText(
         prompt: message.text,
-        model: kTranslateModelV3,
-        maxTokens: 200,
+        model: Model.textDavinci3,
       );
-      Vx.log(message.text);
-      final response = chatGPT!
-          .onCompleteStream(request: request)
-          .asBroadcastStream()
-          .listen((response) {
-        Vx.log(response!.choices[0].text);
-        ChatMessage botMessage = ChatMessage(
-          text: response.choices[0].text,
-          sender: "Bot",
-          isImage: false,
-        );
-
-        setState(() {
-          _isTyping = false;
-          _messages.insert(0, botMessage);
-        });
+      final response =
+          chatGPT!.onCompletion(request: request).asStream().listen((event) {
+        Vx.log(event?.choices[0].text);
+        insertNewData(event!.choices[0].text, isImage: false);
       });
     }
   }
