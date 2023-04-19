@@ -23,7 +23,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     chatGPT = OpenAI.instance.build(
-        token: "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",
+        token: "",
         baseOption: HttpSetup(
             receiveTimeout: const Duration(seconds: 20),
             connectTimeout: const Duration(seconds: 20)),
