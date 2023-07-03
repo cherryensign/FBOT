@@ -1,6 +1,8 @@
 A Chatbot Application Developed in FLutter Based on ChatGPT 3.0.
 Consists features of ChatGPT where you can have humam like converstions with the bot.
 Image Gneration is also available where You can request the bot to generate image as per your needs.
+![Image alt text](https://github.com/cherryensign/FBOT/blob/c31ffdfcc3678f8b50539eaddfeb4505915f5ed1/screenshots/Chat%20Bot.png?raw=true)
+
 
 This Project is a part of my Internship/ Senior Design Project at my college Vellore Institute of Technolgy - Andhra Pradesh, India (VIT-AP)
 
